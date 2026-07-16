@@ -72,6 +72,34 @@ The structure is intentionally small and should only expand when justified by ne
 
 ---
 
+# AD-004: Separation of Geometry and Sampling
+
+**Status:** Accepted
+
+## Decision
+
+Particle classes are deterministic.
+
+They generate exactly the geometry requested by the supplied parameters.
+
+Sampling strategies, parameter distributions, atmospheric parameterisations, random perturbations and orientation models are responsibilities of the dataset generation framework.
+
+## Rationale
+
+This separation:
+
+- keeps particle models simple and deterministic,
+- ensures identical inputs always generate identical particles,
+- allows multiple dataset generation strategies without modifying particle definitions,
+- supports both physically based synthetic datasets and controlled machine learning datasets,
+- avoids embedding atmospheric assumptions within particle definitions.
+
+Particle classes define **what** a particle is.
+
+Dataset generation defines **how populations of particles are created**.
+
+---
+
 # Open Architectural Questions
 
 The following topics remain under discussion.
@@ -93,4 +121,30 @@ Status: Under discussion.
 
 What constitutes the minimal public interface of a `Particle`?
 
+What is the structure of the 'public API'?
+
+The proposed public API separates the physical particle from its geometric definition.
+
+Example (Bullet Rosette geometry):
+
+particle = Particle(
+    geometry=BulletRosette(...),
+    dmax=2.3,
+    density=917,
+)
+
 Status: Under discussion.
+
+---
+
+## AQ-003
+
+Should Particle instances be mutable?
+
+Current discussion:
+
+- Geometry should remain fixed after construction.
+- Physical properties such as orientation and Dmax may be mutable for efficient experimentation.
+- This will be evaluated during implementation of the first Particle API.
+
+---
