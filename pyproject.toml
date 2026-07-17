@@ -8,12 +8,15 @@ version = "0.1.0"
 description = "Synthetic multi-view hydrometeor image generation for machine learning."
 readme = "README.md"
 requires-python = ">=3.11"
-license = { text = "MIT" }
+license = { text = "BSD-3-Clause" }
 authors = [
-    { name = "Your Name" }
+    { name = "Jonathan Crosier" }
 ]
 
 dependencies = []
+
+[tool.setuptools.packages.find]
+where = ["src"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
