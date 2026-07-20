@@ -14,7 +14,7 @@ As the project matures, these decisions will be migrated into individual Archite
 
 HydrometeorSynth separates canonical particle geometry from physical particle state.
 
-A `Geometry` object defines only the particle's shape.
+A `Geometry` object defines only the particle's shape, but includes a canonical size (canonical `Dmax`).
 
 A `Particle` combines a `Geometry` with physical properties including:
 

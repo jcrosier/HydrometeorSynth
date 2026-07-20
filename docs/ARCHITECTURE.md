@@ -74,10 +74,11 @@ Geometry owns:
 - cache lifecycle,
 - canonical volume,
 - canonical surface area.
+- canonical Dmax.
 
 Geometry does **not** own:
 
-- Dmax,
+- physical Dmax,
 - density,
 - orientation,
 - imaging,
