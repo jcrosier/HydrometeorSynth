@@ -191,6 +191,16 @@ The `datasets` package acts as the primary orchestration layer for synthetic dat
 
 ---
 
+# Canonical Geometry Conventions
+
+- All geometries are centred on the origin.
+- Each geometry defines a fixed local coordinate system.
+- Local axes are chosen for convenience and consistency.
+- Particle.orientation transforms the canonical geometry into world coordinates.
+- Individual geometry classes document their own local axis conventions.
+
+---
+
 # Future Evolution
 
 The architecture is intended to support future extension while maintaining a stable public API.
