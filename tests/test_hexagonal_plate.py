@@ -1,5 +1,6 @@
 from math import sqrt
 import numpy as np
+from scipy.spatial.distance import pdist
 import pytest
 from trimesh import Trimesh
 from hydrometeorsynth.geometry.hexagonal_plate import HexagonalPlate
@@ -50,6 +51,13 @@ def test_mesh_type():
     assert isinstance(hex_plate.mesh, Trimesh)
 
 
+def test_mesh_is_cached():
+    hex_plate = HexagonalPlate()
+    mesh1 = hex_plate.mesh
+    mesh2 = hex_plate.mesh
+    assert mesh1 is mesh2
+
+
 def test_mesh_centroid():
     hex_plate = HexagonalPlate(0.2)
     assert hex_plate.mesh.centroid == pytest.approx([0,0,0])
@@ -63,9 +71,36 @@ def test_mesh_extents(aspect_ratio):
     assert hex_plate.mesh.extents[2] == pytest.approx(thickness)
 
 
-@pytest.mark.parametrize("dimension", [0, 1])
-def test_vertices_coords_xy(dimension):
+def test_vertices_have_unit_circumradius():
     hex_plate = HexagonalPlate()
     xy = hex_plate.mesh.vertices[:, :2]
     radii = np.linalg.norm(xy, axis=1)
     assert np.max(radii) == pytest.approx(1.0)
+
+
+@pytest.mark.parametrize("aspect_ratio",[0.2,1.2])
+def test_analytical_volume(aspect_ratio):
+    hex_plate = HexagonalPlate(aspect_ratio)
+    diameter = 2
+    radius = diameter*0.5
+    thickness = aspect_ratio * diameter
+    analytical_volume = thickness*3*sqrt(3)*radius**2/2
+    assert analytical_volume == pytest.approx(hex_plate.volume)
+
+
+@pytest.mark.parametrize("aspect_ratio",[0.2,1.2])
+def test_analytical_surface_area(aspect_ratio):
+    hex_plate = HexagonalPlate(aspect_ratio)
+    diameter = 2
+    radius = diameter*0.5
+    thickness = aspect_ratio * diameter
+    analytical_surface_area = (6*radius*thickness) + (3*sqrt(3)*radius**2)
+    assert analytical_surface_area == pytest.approx(hex_plate.surface_area)
+
+
+@pytest.mark.parametrize("aspect_ratio",[0.2,1.2])
+def test_analytical_dmax(aspect_ratio):
+    hex_plate = HexagonalPlate(aspect_ratio)
+    hull = hex_plate.mesh.convex_hull
+    mesh_dmax = pdist(hull.vertices).max()
+    assert mesh_dmax == pytest.approx(hex_plate.dmax)

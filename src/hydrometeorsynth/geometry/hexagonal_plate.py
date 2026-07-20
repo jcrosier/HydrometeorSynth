@@ -1,4 +1,4 @@
-from math import sqrt, isfinite, cos, sin, pi
+from math import sqrt, isfinite
 from shapely.geometry import Polygon
 from trimesh.creation import extrude_polygon
 import numpy as np
