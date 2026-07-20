@@ -9,10 +9,15 @@ class DummyGeometry(Geometry):
         super().__init__()
         self.build_count = 0
 
+    @property
+    def dmax(self):
+        return 1.0
+
     def _build_mesh(self):
         self.build_count += 1
         return box(extents=(1.0, 1.0, 1.0))
         
+
 def test_mesh_is_built_only_once():
     geometry = DummyGeometry()
     assert geometry.build_count == 0
@@ -20,6 +25,7 @@ def test_mesh_is_built_only_once():
     assert geometry.build_count == 1
     _ = geometry.mesh
     assert geometry.build_count == 1
+
 
 def test_volume_uses_cached_mesh():
     geometry = DummyGeometry()
@@ -29,6 +35,7 @@ def test_volume_uses_cached_mesh():
     _ = geometry.volume
     assert geometry.build_count == 1
 
+
 def test_surface_area_uses_cached_mesh():
     geometry = DummyGeometry()
     assert geometry.build_count == 0
@@ -36,6 +43,7 @@ def test_surface_area_uses_cached_mesh():
     assert geometry.build_count == 1
     _ = geometry.surface_area
     assert geometry.build_count == 1
+
 
 def test_mesh_cache_invalidation():
     geometry = DummyGeometry()
@@ -52,6 +60,7 @@ def test_volume_cache_invalidation():
     geometry._geometry_changed()
     _ = geometry.volume
     assert geometry.build_count == 2
+
 
 def test_surface_area_cache_invalidation():
     geometry = DummyGeometry()
