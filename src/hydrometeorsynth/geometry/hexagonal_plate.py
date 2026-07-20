@@ -4,6 +4,10 @@ from trimesh.creation import extrude_polygon
 import numpy as np
 from hydrometeorsynth.geometry.base import Geometry
 
+CANONICAL_RADIUS = 1.0
+CANONICAL_DIAMETER = 2.0 * CANONICAL_RADIUS
+
+
 class HexagonalPlate(Geometry):
     """Canonical hexagonal plate with vertices at unit circumradius.
 
@@ -39,16 +43,14 @@ class HexagonalPlate(Geometry):
 
     @property
     def dmax(self) -> float:
-        """Canonical dmax for hexagonal plate with circumradius of 1"""
-        diameter = 2.0
-        thickness: float = self.aspect_ratio * diameter
-        return sqrt(diameter**2 + thickness**2)
+        """Return the maximum span of the canonical hexagonal plate."""
+        thickness: float = self.aspect_ratio * CANONICAL_DIAMETER
+        return sqrt(CANONICAL_DIAMETER**2 + thickness**2)
     
     def _build_mesh(self):
-        """Canonical mesh for hexagonal plate"""
-        diameter = 2.0
-        thickness = self.aspect_ratio * diameter
-        angle = np.linspace(0, 2 * np.pi, 7)[:-1]
-        hexagon_vertices = np.column_stack((np.cos(angle), np.sin(angle)))
+        """Build and return the mesh for the canonical hexagonal plate."""
+        thickness = self.aspect_ratio * CANONICAL_DIAMETER
+        angles = np.linspace(0.0, 2.0 * np.pi, 7)[:-1]
+        hexagon_vertices = np.column_stack((np.cos(angles), np.sin(angles))) * CANONICAL_RADIUS
         poly = Polygon(hexagon_vertices)
         return extrude_polygon(poly, height=thickness).apply_translation([0, 0, -0.5*thickness])

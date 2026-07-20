@@ -1,22 +1,32 @@
 from math import sqrt
 from scipy.spatial.distance import pdist
+from trimesh import Trimesh
 import pytest
 from hydrometeorsynth.geometry.cube import Cube
+
+CANONICAL_LENGTH = 1.0
+CANONICAL_VOLUME = CANONICAL_LENGTH**3
+CANONICAL_SURFACE_AREA = 6.0 * CANONICAL_LENGTH**2
 
 
 def test_cube_dmax():
     unit_cube = Cube()
-    assert unit_cube.dmax == sqrt(3.0)
+    assert unit_cube.dmax == CANONICAL_LENGTH * sqrt(3.0)
 
 
 def test_cube_volume():
     unit_cube = Cube()
-    assert unit_cube.volume == 1.0
+    assert unit_cube.volume == pytest.approx(CANONICAL_VOLUME)
 
 
 def test_cube_surface_area():
     unit_cube = Cube()
-    assert unit_cube.surface_area == 6.0
+    assert unit_cube.surface_area == pytest.approx(CANONICAL_SURFACE_AREA)
+
+
+def test_cube_mesh_type():
+    cube = Cube()
+    assert isinstance(cube.mesh, Trimesh)
 
 
 def test_cube_analytical_dmax():
