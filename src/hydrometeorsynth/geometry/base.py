@@ -30,6 +30,11 @@ class Geometry(ABC):
             self._surface_area = self.mesh.area
         return self._surface_area
     
+    @property
+    @abstractmethod
+    def dmax(self) -> float:
+        """Return the maximum dimension of the canonical geometry."""
+    
     @abstractmethod
     def _build_mesh(self) -> Trimesh:
         """Construct and return the canonical mesh."""
