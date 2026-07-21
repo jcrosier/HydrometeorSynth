@@ -1,12 +1,14 @@
-from hydrometeorsynth.geometry.base import Geometry
 from trimesh.creation import icosphere
+
+from hydrometeorsynth.geometry.base import Geometry
 
 CANONICAL_RADIUS = 1.0
 CANONICAL_DIAMETER = 2.0 * CANONICAL_RADIUS
 
+
 class Sphere(Geometry):
     """Canonical sphere centred at the origin with unit radius."""
-    
+
     @property
     def dmax(self):
         """Return the value of Dmax for the canonical sphere with unit radius."""

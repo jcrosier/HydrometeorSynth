@@ -1,8 +1,10 @@
 from math import sqrt
+
 import numpy as np
-from scipy.spatial.distance import pdist
 import pytest
+from scipy.spatial.distance import pdist
 from trimesh import Trimesh
+
 from hydrometeorsynth.geometry.hexagonal_plate import HexagonalPlate
 
 CANONICAL_RADIUS = 1.0
@@ -17,13 +19,15 @@ def test_hex_plate_dmax(aspect_ratio):
     assert hex_plate.dmax == pytest.approx(expected, rel=1e-12)
 
 
-@pytest.mark.parametrize("value",["aspect_ratio", ["aspect_ratio"], ["1.2"]])
+@pytest.mark.parametrize("value", ["aspect_ratio", ["aspect_ratio"], ["1.2"]])
 def test_hex_plate_aspect_ratio_type_error(value):
     with pytest.raises(TypeError):
         HexagonalPlate(value)
 
 
-@pytest.mark.parametrize("value",[0.0, -1.0, float("nan"), float("inf"), float("-inf")])
+@pytest.mark.parametrize(
+    "value", [0.0, -1.0, float("nan"), float("inf"), float("-inf")]
+)
 def test_hex_plate_aspect_ratio_value_error(value):
     with pytest.raises(ValueError):
         HexagonalPlate(value)
@@ -62,10 +66,10 @@ def test_hex_plate_mesh_is_cached():
 
 def test_hex_plate_mesh_centroid():
     hex_plate = HexagonalPlate(0.2)
-    assert hex_plate.mesh.centroid == pytest.approx([0,0,0])
+    assert hex_plate.mesh.centroid == pytest.approx([0, 0, 0])
 
 
-@pytest.mark.parametrize("aspect_ratio",[0.2, 1.2, 2.2])
+@pytest.mark.parametrize("aspect_ratio", [0.2, 1.2, 2.2])
 def test_hex_plate_mesh_extents(aspect_ratio):
     hex_plate = HexagonalPlate(aspect_ratio)
     thickness = aspect_ratio * CANONICAL_DIAMETER
@@ -79,23 +83,25 @@ def test_hex_plate_vertices_have_unit_circumradius():
     assert np.max(radii) == pytest.approx(CANONICAL_RADIUS)
 
 
-@pytest.mark.parametrize("aspect_ratio",[0.2,1.2])
+@pytest.mark.parametrize("aspect_ratio", [0.2, 1.2])
 def test_hex_plate_analytical_volume(aspect_ratio):
     hex_plate = HexagonalPlate(aspect_ratio)
     thickness = aspect_ratio * CANONICAL_DIAMETER
-    analytical_volume = thickness*3*sqrt(3)*CANONICAL_RADIUS**2/2
+    analytical_volume = thickness * 3 * sqrt(3) * CANONICAL_RADIUS**2 / 2
     assert analytical_volume == pytest.approx(hex_plate.volume)
 
 
-@pytest.mark.parametrize("aspect_ratio",[0.2,1.2])
+@pytest.mark.parametrize("aspect_ratio", [0.2, 1.2])
 def test_hex_plate_analytical_surface_area(aspect_ratio):
     hex_plate = HexagonalPlate(aspect_ratio)
     thickness = aspect_ratio * CANONICAL_DIAMETER
-    analytical_surface_area = (6*CANONICAL_RADIUS*thickness) + (3*sqrt(3)*CANONICAL_RADIUS**2)
+    analytical_surface_area = (6 * CANONICAL_RADIUS * thickness) + (
+        3 * sqrt(3) * CANONICAL_RADIUS**2
+    )
     assert analytical_surface_area == pytest.approx(hex_plate.surface_area)
 
 
-@pytest.mark.parametrize("aspect_ratio",[0.2,1.2])
+@pytest.mark.parametrize("aspect_ratio", [0.2, 1.2])
 def test_hex_plate_analytical_vs_mesh_dmax(aspect_ratio):
     hex_plate = HexagonalPlate(aspect_ratio)
     hull = hex_plate.mesh.convex_hull

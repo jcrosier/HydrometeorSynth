@@ -1,7 +1,9 @@
 from math import pi
+
+import pytest
 from scipy.spatial.distance import pdist
 from trimesh import Trimesh
-import pytest
+
 from hydrometeorsynth.geometry.sphere import Sphere
 
 CANONICAL_RADIUS = 1.0

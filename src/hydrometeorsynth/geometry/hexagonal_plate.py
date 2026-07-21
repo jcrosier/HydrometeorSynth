@@ -1,7 +1,9 @@
-from math import sqrt, isfinite
+from math import isfinite, sqrt
+
+import numpy as np
 from shapely.geometry import Polygon
 from trimesh.creation import extrude_polygon
-import numpy as np
+
 from hydrometeorsynth.geometry.base import Geometry
 
 CANONICAL_RADIUS = 1.0
@@ -21,7 +23,7 @@ class HexagonalPlate(Geometry):
 
     Vertices are numbered counter-clockwise from the +x axis.
     """
-    
+
     def __init__(self, aspect_ratio: float = 0.1):
         super().__init__()
         self.aspect_ratio = aspect_ratio
@@ -46,11 +48,13 @@ class HexagonalPlate(Geometry):
         """Return the maximum span of the canonical hexagonal plate."""
         thickness: float = self.aspect_ratio * CANONICAL_DIAMETER
         return sqrt(CANONICAL_DIAMETER**2 + thickness**2)
-    
+
     def _build_mesh(self):
         """Build and return the mesh for the canonical hexagonal plate."""
         thickness = self.aspect_ratio * CANONICAL_DIAMETER
         angles = np.linspace(0.0, 2.0 * np.pi, 7)[:-1]
-        hexagon_vertices = np.column_stack((np.cos(angles), np.sin(angles))) * CANONICAL_RADIUS
-        poly = Polygon(hexagon_vertices)
-        return extrude_polygon(poly, height=thickness).apply_translation([0, 0, -0.5*thickness])
+        hexagon_vertices = (
+            np.column_stack((np.cos(angles), np.sin(angles))) * CANONICAL_RADIUS
+        )
+        model = extrude_polygon(Polygon(hexagon_vertices), height=thickness)
+        return model.apply_translation([0, 0, -0.5 * thickness])

@@ -1,7 +1,9 @@
 from math import sqrt
+
+import pytest
 from scipy.spatial.distance import pdist
 from trimesh import Trimesh
-import pytest
+
 from hydrometeorsynth.geometry.cube import Cube
 
 CANONICAL_LENGTH = 1.0

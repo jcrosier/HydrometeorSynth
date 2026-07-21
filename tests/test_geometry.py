@@ -1,5 +1,6 @@
-from hydrometeorsynth.geometry.base import Geometry
 from trimesh.creation import box
+
+from hydrometeorsynth.geometry.base import Geometry
 
 
 class DummyGeometry(Geometry):
@@ -16,7 +17,7 @@ class DummyGeometry(Geometry):
     def _build_mesh(self):
         self.build_count += 1
         return box(extents=(1.0, 1.0, 1.0))
-        
+
 
 def test_mesh_is_built_only_once():
     geometry = DummyGeometry()
@@ -52,6 +53,7 @@ def test_mesh_cache_invalidation():
     geometry._geometry_changed()
     _ = geometry.mesh
     assert geometry.build_count == 2
+
 
 def test_volume_cache_invalidation():
     geometry = DummyGeometry()
