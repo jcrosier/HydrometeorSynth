@@ -9,14 +9,48 @@ description = "Synthetic multi-view hydrometeor image generation for machine lea
 readme = "README.md"
 requires-python = ">=3.11"
 license = { text = "BSD-3-Clause" }
+
 authors = [
     { name = "Jonathan Crosier" }
 ]
 
-dependencies = []
+dependencies = [
+    "numpy>=2.0",
+    "trimesh>=4.7",
+    "shapely>=2.1",
+    "mapbox-earcut>=1.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "pytest-cov>=6.0",
+    "ruff>=0.12",
+    "scipy>=1.14",
+]
+
+[project.urls]
+Homepage = "https://github.com/jcrosier/HydrometeorSynth"
+Repository = "https://github.com/jcrosier/HydrometeorSynth"
+Issues = "https://github.com/jcrosier/HydrometeorSynth/issues"
 
 [tool.setuptools.packages.find]
 where = ["src"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 88
+
+[tool.ruff.lint]
+select = [
+    "E", # pycodestyle errors
+    "F", # Pyflakes
+    "I", # isort (import sorting)
+]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
