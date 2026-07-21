@@ -240,3 +240,23 @@ Cached quantities include:
 Geometry operations such as mesh generation are computationally expensive and benefit from caching.
 
 Particle calculations are inexpensive arithmetic and do not justify additional cache complexity.
+
+---
+
+# AD-010: Mutable Particles
+
+**Status:** Accepted
+
+## Decision 
+
+Particle objects are mutable.
+
+Changing a defining parameter automatically invalidates cached derived state.
+
+Derived quantities are recomputed lazily when next requested.
+
+Property setters are responsible for validating inputs and maintaining object consistency.
+
+## Rationale
+
+The Particle class shall be mutable to support interactive scientific exploration. Physical properties such as dmax, density, and orientation may be modified after construction. 
