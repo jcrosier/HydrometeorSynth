@@ -260,3 +260,31 @@ Property setters are responsible for validating inputs and maintaining object co
 ## Rationale
 
 The Particle class shall be mutable to support interactive scientific exploration. Physical properties such as dmax, density, and orientation may be modified after construction. 
+
+---
+
+# AD-011: Orientation API
+
+**Status:** Accepted
+
+## Decision
+
+`Orientation` represents the rotational state of a particle using rotations about the x, y, and z axes.. It shall accept three named Euler angles in **degrees**, with the following valid ranges:
+
+- 0 ≤ x_rotation < 360
+- 0 ≤ y_rotation < 360
+- 0 ≤ z_rotation < 360
+
+Values outside this range are considered invalid and shall raise a ValueError.
+
+Floating-point values are permitted.
+
+`Orientation` is mutable to allow interactive control and experimentation.
+
+## Rationale
+
+Particles require an orientation to support imaging and rendering. Several public APIs were considered, including positional arguments, tuples of angles, and named parameters.
+
+The public API should be explicit, readable and self-documenting, following the design principles already established for the Particle domain object.
+
+---
