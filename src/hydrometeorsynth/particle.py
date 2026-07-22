@@ -86,3 +86,19 @@ class Particle:
         # if value is not None and not isinstance(value, (None)):
         #    raise TypeError("orientation must be of Orientation type")
         self._orientation = value
+
+    @property
+    def scale(self) -> float:
+        return self.dmax / self.geometry.dmax
+
+    @property
+    def surface_area(self) -> float:
+        return self.geometry.surface_area * (self.scale**2)
+
+    @property
+    def volume(self) -> float:
+        return self.geometry.volume * (self.scale**3)
+
+    @property
+    def mass(self) -> float:
+        return self.volume * self.density
