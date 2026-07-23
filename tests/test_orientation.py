@@ -10,12 +10,14 @@ MAX_ROTATION = 360.0
 def test_orientation_init_default():
     orientation = Orientation()
     assert isinstance(orientation, Orientation)
-    assert isinstance(orientation.x_rotation, float)
-    assert isinstance(orientation.y_rotation, float)
-    assert isinstance(orientation.z_rotation, float)
-    assert orientation.x_rotation == pytest.approx(DEFAULT_ROTATION)
-    assert orientation.y_rotation == pytest.approx(DEFAULT_ROTATION)
-    assert orientation.z_rotation == pytest.approx(DEFAULT_ROTATION)
+
+
+@pytest.mark.parametrize("name", ["x_rotation", "y_rotation", "z_rotation"])
+def test_orientation_check_default_values(name):
+    orientation = Orientation()
+    value = getattr(orientation, name)
+    assert isinstance(value, float)
+    assert value == pytest.approx(DEFAULT_ROTATION)
 
 
 def test_orientation_init_valid():
