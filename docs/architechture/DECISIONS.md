@@ -16,10 +16,15 @@ HydrometeorSynth separates canonical particle geometry from physical particle st
 
 A `Geometry` object defines only the particle's shape, but includes a canonical size (canonical `Dmax`).
 
-A `Particle` combines a `Geometry` with physical properties including:
+A `Position` object defines only the particle's location in space.
+
+A `Orientation` object defines only the particle's orientation in space.
+
+A `Particle` combines `Geometry`, `Orientation` and `Position` which provides physical properties including:
 
 - maximum dimension (`Dmax`),
 - density,
+- location,
 - orientation.
 
 All higher-level workflows operate on `Particle` objects.
@@ -36,6 +41,14 @@ Separating shape from physical state:
 `Geometry` answers the question:
 
 > *"What shape is this?"*
+
+`Orientation` answers the question:
+
+> *"How is this orientated?"*
+
+`Position` answers the question:
+
+> *"Where is this located?"*
 
 `Particle` answers the question:
 
@@ -89,13 +102,13 @@ The structure is intentionally small and should only expand when justified by ne
 
 ---
 
-# AD-004: Separation of Geometry and Sampling
+# AD-004: Separation of Geometry, Orientation, Position and Sampling
 
 **Status:** Accepted
 
 ## Decision
 
-Geometry classes are deterministic.
+Geometry, Orientation, and Position classes are deterministic.
 
 They generate exactly the geometry requested by the supplied parameters.
 
@@ -105,13 +118,17 @@ Sampling strategies, parameter distributions, atmospheric parameterisations, ran
 
 This separation:
 
-- keeps geometry models simple and deterministic,
-- ensures identical inputs always generate identical geometry,
-- allows multiple dataset generation strategies without modifying geometry implementations,
+- keeps component models simple and deterministic,
+- ensures identical inputs always generate identical output,
+- allows multiple dataset generation strategies without modifying implementations,
 - supports both physically based synthetic datasets and controlled machine learning datasets,
 - avoids embedding atmospheric assumptions within geometry definitions.
 
 Geometry defines **what shape** a particle has.
+
+Orientation defines **what orientation** a particle has.
+
+Position defines **where** a particle is.
 
 Dataset generation defines **how particle populations are created**.
 
@@ -157,6 +174,7 @@ It owns:
 - Dmax,
 - density,
 - orientation.
+- position
 
 It derives physical properties such as volume, surface area and mass from these values.
 
@@ -288,3 +306,11 @@ Particles require an orientation to support imaging and rendering. Several publi
 The public API should be explicit, readable and self-documenting, following the design principles already established for the Particle domain object.
 
 ---
+
+# AD-012 — Position Domain Object
+
+**Status:** Accepted
+
+## Decision
+
+Position represents the location of a particle in a three-dimensional coordinate system. It is a mutable value object containing validated x, y, and z components. Position is independent of Geometry, Particle, and imaging. Coordinates must be finite real numbers and are not range-limited.
