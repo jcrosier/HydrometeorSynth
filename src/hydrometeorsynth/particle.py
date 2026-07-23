@@ -1,7 +1,7 @@
 from math import isfinite
-from typing import Any
 
 from hydrometeorsynth.geometry.base import Geometry
+from hydrometeorsynth.orientation import Orientation
 
 # todo: import Orientation and integrate Orientation type
 MIN_DMAX = 0.01
@@ -28,7 +28,11 @@ class Particle:
     """
 
     def __init__(
-        self, geometry: Geometry, dmax: float, density: float, orientation=None
+        self,
+        geometry: Geometry,
+        dmax: float,
+        density: float,
+        orientation: Orientation | None = None,
     ):
         self.geometry = geometry
         self.dmax = dmax
@@ -77,15 +81,17 @@ class Particle:
         self._density = float(value)
 
     @property
-    def orientation(self) -> Any:
+    def orientation(self) -> Orientation:
         return self._orientation
 
     @orientation.setter
-    def orientation(self, value: Any) -> None:
-        # todo implement orientation validation test
-        # if value is not None and not isinstance(value, (None)):
-        #    raise TypeError("orientation must be of Orientation type")
-        self._orientation = value
+    def orientation(self, value: Orientation | None) -> None:
+        if value is None:
+            self._orientation = Orientation()
+        elif isinstance(value, Orientation):
+            self._orientation = value
+        else:
+            raise TypeError("orientation must be of Orientation type")
 
     @property
     def scale(self) -> float:

@@ -3,6 +3,7 @@ from math import sqrt
 import pytest
 
 from hydrometeorsynth.geometry.cube import Cube
+from hydrometeorsynth.orientation import Orientation
 from hydrometeorsynth.particle import Particle
 
 MIN_DMAX = 0.01
@@ -23,7 +24,7 @@ def test_particle_initialises_properties():
     assert test_particle.geometry is cube
     assert test_particle.dmax == dmax
     assert test_particle.density == density
-    assert test_particle.orientation is None
+    assert isinstance(test_particle.orientation, Orientation)
 
 
 @pytest.mark.parametrize("geometry", [1, 1.0, "sphere"])
@@ -144,16 +145,48 @@ def test_particle_density_setter_type_validation(density_val):
         particle.density = density_val
 
 
-def test_particle_orientation_defaults_to_none():
-    particle = Particle(Cube(), CANONICAL_CUBE_DMAX, TEST_DENSITY)
-    assert particle.orientation is None
+def test_particle_orientation_init():
+    orientation = Orientation()
+    particle = Particle(Cube(), CANONICAL_CUBE_DMAX, TEST_DENSITY, orientation)
+    assert particle.orientation is orientation
 
 
-def test_particle_orientation_can_be_assigned():
+def test_particle_orientation_default():
     particle = Particle(Cube(), CANONICAL_CUBE_DMAX, TEST_DENSITY)
-    marker = object()
-    particle.orientation = marker
-    assert particle.orientation is marker
+    assert isinstance(particle.orientation, Orientation)
+    assert particle.orientation.x_rotation == pytest.approx(0.0)
+    assert particle.orientation.y_rotation == pytest.approx(0.0)
+    assert particle.orientation.z_rotation == pytest.approx(0.0)
+
+
+def test_particle_orientation_setter():
+    particle = Particle(Cube(), CANONICAL_CUBE_DMAX, TEST_DENSITY)
+    particle.orientation = Orientation(
+        x_rotation=70.0,
+        y_rotation=80.0,
+        z_rotation=90.0,
+    )
+    assert particle.orientation.x_rotation == pytest.approx(70.0)
+    assert particle.orientation.y_rotation == pytest.approx(80.0)
+    assert particle.orientation.z_rotation == pytest.approx(90.0)
+
+
+@pytest.mark.parametrize("orientation", [1, "orientation", object()])
+def test_particle_orientation_type_validation(orientation):
+    with pytest.raises(TypeError):
+        Particle(
+            Cube(),
+            CANONICAL_CUBE_DMAX,
+            TEST_DENSITY,
+            orientation,
+        )
+
+
+@pytest.mark.parametrize("orientation", [1, "orientation", object()])
+def test_particle_orientation_setter_type_validation(orientation):
+    particle = Particle(Cube(), CANONICAL_CUBE_DMAX, TEST_DENSITY)
+    with pytest.raises(TypeError):
+        particle.orientation = orientation
 
 
 @pytest.fixture
