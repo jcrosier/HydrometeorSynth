@@ -2,7 +2,7 @@
 
 **Project:** HydrometeorSynth
 
-**Version:** Draft 0.1
+**Version:** Draft 0.2
 
 ---
 
@@ -24,8 +24,8 @@ HydrometeorSynth is organised into a small number of high-level components, each
 |-----------|----------------|
 | `geometry` | Canonical geometric representations, mesh generation, geometric calculations and transformations. |
 | `particle` | Physical particle representation combining geometry with physical properties. |
-| `imaging` | Camera models, projection algorithms and sensor response models. |
-| `datasets` | Dataset generation, parameter sampling, metadata assembly and orchestration of image generation. |
+| `imaging` | Camera models, image representation, rendering algorithms and sensor response models. |
+| `datasets` | Dataset generation, parameter sampling and orchestration of particle generation, imaging and dataset assembly. |
 | `io` | Reading and writing supported file formats including Zarr, STL, OBJ and configuration files. |
 | `viewer` | Interactive inspection and quality assurance of generated geometries and datasets. |
 
@@ -35,13 +35,14 @@ HydrometeorSynth is organised into a small number of high-level components, each
 
 HydrometeorSynth separates **geometry** from **physical state**.
 
-A `Geometry` defines only the shape of a particle.
+A `Geometry` defines only the canonical shape of a particle.
 
 A `Particle` combines a `Geometry` with physical properties including:
 
 - maximum dimension (`Dmax`),
 - density,
-- orientation.
+- orientation,
+- position.
 
 Together these represent a single physical particle.
 
@@ -73,7 +74,7 @@ Geometry owns:
 - mesh generation,
 - cache lifecycle,
 - canonical volume,
-- canonical surface area.
+- canonical surface area,
 - canonical Dmax.
 
 Geometry does **not** own:
@@ -81,6 +82,7 @@ Geometry does **not** own:
 - physical Dmax,
 - density,
 - orientation,
+- position,
 - imaging,
 - random sampling.
 
@@ -95,9 +97,10 @@ It owns:
 - geometry,
 - Dmax,
 - density,
-- orientation.
+- orientation,
+- position.
 
-It derives physical properties from these values and intentionally contains minimal behaviour.
+It contains only behaviour directly related to its physical state.
 
 `Particle` does not perform:
 
@@ -106,6 +109,38 @@ It derives physical properties from these values and intentionally contains mini
 - imaging,
 - random sampling,
 - dataset generation.
+
+---
+
+# Imaging Model
+
+The imaging package simulates the observation of particles by virtual imaging systems.
+
+It is composed of three primary concepts:
+
+- `Camera`, which defines the viewing geometry,
+- `Renderer`, which projects particles into image space,
+- `Image`, which stores the rendered pixel data.
+
+The imaging package is independent of dataset generation and may be used by interactive applications or other workflows.
+
+---
+
+# Imaging Responsibilities
+
+The imaging package owns:
+
+- camera models,
+- image buffers,
+- rendering algorithms,
+- sensor response models.
+
+It does **not** own:
+
+- particle generation,
+- dataset generation,
+- persistent storage,
+- visualisation.
 
 ---
 
@@ -149,6 +184,10 @@ Simple, explicit object creation is preferred over introducing abstractions with
 
 The common workflow should remain intuitive while still supporting advanced scientific use cases.
 
+## Layered architecture
+
+Higher-level components coordinate lower-level components without duplicating their responsibilities. Domain objects remain independent of imaging, while imaging remains independent of dataset generation and persistence.
+
 ## Streaming processing
 
 Dataset generation follows a streaming model.
@@ -178,13 +217,17 @@ datasets
     ├── imaging
     └── io
 
+imaging
+    │
+    └── particle
+
 particle
     │
     └── geometry
 
 viewer
-    ├── particle
-    └── geometry
+    ├── imaging
+    └── particle
 ```
 
 The `datasets` package acts as the primary orchestration layer for synthetic dataset generation, coordinating particle creation, image generation and dataset assembly while delegating specialist tasks to the appropriate packages.
@@ -196,7 +239,7 @@ The `datasets` package acts as the primary orchestration layer for synthetic dat
 - All geometries are centred on the origin.
 - Each geometry defines a fixed local coordinate system.
 - Local axes are chosen for convenience and consistency.
-- Particle.orientation transforms the canonical geometry into world coordinates.
+- `Particle.orientation` transforms the canonical geometry into world coordinates.
 - Individual geometry classes document their own local axis conventions.
 
 ---
@@ -209,7 +252,9 @@ Expected future developments include:
 
 - additional hydrometeor geometries,
 - engineering reference particles,
-- improved camera and sensor response models,
+- additional camera models,
+- improved rendering algorithms,
+- improved sensor response models,
 - expanded physical property calculations,
 - additional dataset formats,
 - enhanced visualisation capabilities.

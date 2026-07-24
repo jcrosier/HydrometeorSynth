@@ -96,9 +96,16 @@ The initial top-level package structure is:
 
 ## Rationale
 
-Packages are organised according to user-facing responsibilities while maintaining clear separation of concerns.
+Packages are organised according to their primary responsibilities while maintaining a layered architecture and clear separation of concerns.
 
-The structure is intentionally small and should only expand when justified by new functionality.
+The structure intentionally separates:
+
+- domain modelling (`geometry`, `particle`),
+- image generation (`imaging`),
+- application workflows (`datasets`, `viewer`),
+- persistence (`io`).
+
+The package structure is intentionally small and should only expand when justified by new functionality.
 
 ---
 
@@ -314,3 +321,127 @@ The public API should be explicit, readable and self-documenting, following the 
 ## Decision
 
 Position represents the location of a particle in a three-dimensional coordinate system. It is a mutable value object containing validated x, y, and z components. Position is independent of Geometry, Particle, and imaging. Coordinates must be finite real numbers and are not range-limited.
+
+---
+
+# AD-013: Imaging Subsystem
+
+**Status:** Accepted
+
+## Decision
+
+The imaging subsystem separates the description of viewing geometry, rendering, and rendered output into distinct classes.
+
+The initial imaging architecture consists of:
+
+- `Camera`
+- `Renderer`
+- `Image`
+
+`Camera` describes the viewing geometry, including:
+
+- position,
+- orientation,
+- pixel size,
+- width,
+- height.
+
+`Renderer` converts a `Particle` into an `Image` using a specified `Camera`.
+
+`Image` represents the rendered image and owns the image pixel buffer. It is independent of the rendering process and may be reused across multiple rendering operations.
+
+## Rationale
+
+Separating these responsibilities keeps the imaging subsystem modular, reusable and extensible.
+
+`Camera` describes **how** a scene is viewed, but performs no rendering.
+
+`Renderer` performs the computational work of projecting particles into image space. It owns neither particle state nor camera state.
+
+`Image` represents the rendering result independently of the rendering process.
+
+This separation allows new camera models, rendering implementations and sensor response models to be introduced without changing the particle domain model.
+
+---
+
+# AD-014: Mutable Camera
+
+**Status:** Accepted
+
+## Decision
+
+`Camera` objects are mutable.
+
+Camera properties are modified through validated property setters.
+
+These include:
+
+- position,
+- orientation,
+- pixel size,
+- width,
+- height.
+
+All camera properties shall maintain a valid state through property validation.
+
+## Rationale
+
+A mutable camera simplifies interactive applications such as viewers and graphical user interfaces, where camera properties are frequently adjusted by the user.
+
+This approach is consistent with the existing mutable domain objects (`Geometry`, `Particle`, `Orientation`, and `Position`) and provides a uniform programming model throughout the project.
+
+Validation performed by property setters ensures that camera objects always remain in a valid state.
+
+---
+
+# AD-015: Fixed Camera Configuration for Dataset Generation
+
+**Status:** Accepted
+
+## Context
+
+HydrometeorSynth supports multiple workflows that utilise the imaging subsystem. Two primary workflows have been identified:
+
+- **Dataset generation**, where large numbers of particles are rendered in a streaming pipeline and written to a Zarr dataset.
+- **Interactive viewing**, where users can manipulate the camera configuration to inspect individual particles.
+
+During dataset generation, all rendered particles should be produced under a consistent imaging configuration to ensure scientific reproducibility and to simplify the resulting dataset structure.
+
+## Decision
+
+A dataset generation job shall use a fixed camera configuration for its entire lifetime.
+
+All particles within a dataset shall be rendered using the same camera definitions. Camera properties, including projection, position, orientation, pixel size, image dimensions and any future rendering parameters, shall remain constant throughout dataset generation.
+
+Camera metadata shall therefore be stored once as dataset-level metadata rather than duplicated for every particle.
+
+The `Camera` class shall remain mutable to support interactive applications. However, the dataset generation API shall enforce that camera configurations remain fixed for the duration of a dataset generation job.
+
+## Consequences
+
+### Positive
+
+- Produces scientifically consistent datasets.
+- Simplifies the dataset data model.
+- Eliminates duplication of camera metadata.
+- Improves storage efficiency.
+- Ensures reproducible rendering conditions.
+- Separates the concerns of dataset generation and interactive viewing.
+- Allows the same mutable `Camera` implementation to be reused by both workflows.
+
+### Negative
+
+- A single dataset cannot represent particles rendered using varying camera configurations.
+- Experiments requiring varying camera geometry must be represented using separate dataset generation workflows or dataset formats.
+
+## Alternatives Considered
+
+### Store camera metadata per particle
+
+This would permit camera properties to vary between particles but would significantly increase metadata duplication, complicate the dataset structure and reduce the semantic consistency of datasets intended for machine learning.
+
+### Make `Camera` immutable
+
+An immutable camera would naturally enforce fixed dataset generation but would unnecessarily restrict interactive viewers and graphical applications where camera parameters are expected to change dynamically.
+
+This alternative was rejected because mutability is appropriate for the `Camera` domain object, while enforcement of fixed camera configurations is the responsibility of the dataset generation API.
