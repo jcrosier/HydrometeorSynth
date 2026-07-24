@@ -5,6 +5,7 @@ import pytest
 from hydrometeorsynth.geometry.cube import Cube
 from hydrometeorsynth.orientation import Orientation
 from hydrometeorsynth.particle import Particle
+from hydrometeorsynth.position import Position
 
 MIN_DMAX = 0.01
 MAX_DMAX = 100.0
@@ -25,6 +26,7 @@ def test_particle_initialises_properties():
     assert test_particle.dmax == dmax
     assert test_particle.density == density
     assert isinstance(test_particle.orientation, Orientation)
+    assert isinstance(test_particle.position, Position)
 
 
 @pytest.mark.parametrize("geometry", [1, 1.0, "sphere"])
@@ -147,7 +149,9 @@ def test_particle_density_setter_type_validation(density_val):
 
 def test_particle_orientation_init():
     orientation = Orientation()
-    particle = Particle(Cube(), CANONICAL_CUBE_DMAX, TEST_DENSITY, orientation)
+    particle = Particle(
+        Cube(), CANONICAL_CUBE_DMAX, TEST_DENSITY, orientation=orientation
+    )
     assert particle.orientation is orientation
 
 
@@ -178,7 +182,7 @@ def test_particle_orientation_type_validation(orientation):
             Cube(),
             CANONICAL_CUBE_DMAX,
             TEST_DENSITY,
-            orientation,
+            orientation=orientation,
         )
 
 
@@ -187,6 +191,68 @@ def test_particle_orientation_setter_type_validation(orientation):
     particle = Particle(Cube(), CANONICAL_CUBE_DMAX, TEST_DENSITY)
     with pytest.raises(TypeError):
         particle.orientation = orientation
+
+
+def test_particle_orientation_setter_none_creates_default():
+    particle = Particle(Cube(), CANONICAL_CUBE_DMAX, TEST_DENSITY)
+    particle.orientation = None
+    assert isinstance(particle.orientation, Orientation)
+    assert particle.orientation.x_rotation == pytest.approx(0.0)
+    assert particle.orientation.y_rotation == pytest.approx(0.0)
+    assert particle.orientation.z_rotation == pytest.approx(0.0)
+
+
+def test_particle_position_init():
+    position = Position()
+    particle = Particle(Cube(), CANONICAL_CUBE_DMAX, TEST_DENSITY, position=position)
+    assert particle.position is position
+
+
+def test_particle_position_default():
+    particle = Particle(Cube(), CANONICAL_CUBE_DMAX, TEST_DENSITY)
+    assert isinstance(particle.position, Position)
+    assert particle.position.x == pytest.approx(0.0)
+    assert particle.position.y == pytest.approx(0.0)
+    assert particle.position.z == pytest.approx(0.0)
+
+
+def test_particle_position_setter():
+    particle = Particle(Cube(), CANONICAL_CUBE_DMAX, TEST_DENSITY)
+    particle.position = Position(
+        x=70.0,
+        y=80.0,
+        z=90.0,
+    )
+    assert particle.position.x == pytest.approx(70.0)
+    assert particle.position.y == pytest.approx(80.0)
+    assert particle.position.z == pytest.approx(90.0)
+
+
+@pytest.mark.parametrize("position", [1, "position", object()])
+def test_particle_position_type_validation(position):
+    with pytest.raises(TypeError):
+        Particle(
+            Cube(),
+            CANONICAL_CUBE_DMAX,
+            TEST_DENSITY,
+            position=position,
+        )
+
+
+@pytest.mark.parametrize("position", [1, "position", object()])
+def test_particle_position_setter_type_validation(position):
+    particle = Particle(Cube(), CANONICAL_CUBE_DMAX, TEST_DENSITY)
+    with pytest.raises(TypeError):
+        particle.position = position
+
+
+def test_particle_position_setter_none_creates_default():
+    particle = Particle(Cube(), CANONICAL_CUBE_DMAX, TEST_DENSITY)
+    particle.position = None
+    assert isinstance(particle.position, Position)
+    assert particle.position.x == pytest.approx(0.0)
+    assert particle.position.y == pytest.approx(0.0)
+    assert particle.position.z == pytest.approx(0.0)
 
 
 @pytest.fixture
